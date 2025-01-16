@@ -154,9 +154,10 @@ function asset_route(file::String; kwargs...) :: String
   asset_route(; file, kwargs...)
 end
 function asset_route(ac::AssetsConfig, tp::Union{Symbol,String}; type::String = string(tp), path::String = "",
-                    file::String = "", ext::String = ".$type", skip_ext::Bool = false, query::String = "") :: String
-  asset_route(package = ac.package, version = ac.version, type = type, path = path, file = file,
-              ext = ext, skip_ext = skip_ext, query = query)
+                    file::String = "", ext::String = ".$type", skip_ext::Bool = false, query::String = "",
+                    kwds...) :: String
+  asset_route(; package = ac.package, version = ac.version, type = type, path = path, file = file,
+              ext = ext, skip_ext = skip_ext, query = query, kwds...)
 end
 
 
@@ -239,7 +240,9 @@ function js_settings(channel::String = Genie.config.webchannels_default_route) :
     :webchannels_server_gone_alert_timeout => Genie.config.webchannels_server_gone_alert_timeout,
     :webchannels_connection_attempts => Genie.config.webchannels_connection_attempts,
     :webchannels_reconnect_delay     => Genie.config.webchannels_reconnect_delay,
-    :webchannels_subscription_trails => Genie.config.webchannels_subscription_trails,
+    :webchannels_subscription_trials => Genie.config.webchannels_subscription_trials,
+    :webchannels_show_alert          => Genie.config.webchannels_show_alert,
+    :webchannels_alert_overlay       => Genie.config.webchannels_alert_overlay,
 
     :webthreads_default_route         => channel,
     :webthreads_js_file               => Genie.config.webthreads_js_file,
@@ -400,9 +403,9 @@ end
 
 function channels_script_tag(channel::AbstractString = Genie.config.webchannels_default_route) :: String
   if ! external_assets()
-    Genie.Renderer.Html.script(src = assets_endpoint())
+    Genie.Renderer.Html.script(src = assets_endpoint(), defer = true)
   else
-    Genie.Renderer.Html.script([channels(channel)])
+    Genie.Renderer.Html.script([channels(channel)], defer = true)
   end
 end
 

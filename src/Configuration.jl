@@ -260,7 +260,9 @@ Base.@kwdef mutable struct Settings
   webchannels_server_gone_alert_timeout::Int          = 10_000 # 10 seconds
   webchannels_connection_attempts                     = 10
   webchannels_reconnect_delay                         = 500 # milliseconds
-  webchannels_subscription_trails                     = 4
+  webchannels_subscription_trials                     = 4
+  webchannels_show_alert::Bool                        = true
+  webchannels_alert_overlay::Bool                     = false
 
   webthreads_default_route::String                    = webchannels_default_route
   webthreads_js_file::String                          = "webthreads.js"
@@ -288,7 +290,7 @@ Base.@kwdef mutable struct Settings
   env_file::String                                    = ".env"
 
   watch::Bool                                         = false
-  watch_extensions::Vector{String}                    = String["jl", "html", "md", "js", "css"]
+  watch_extensions::Vector{String}                    = String["jl", "html", "md", "js", "css", "theme"]
   watch_handlers::Dict{Any,Vector{Function}}          = Dict()
   watch_frequency::Int                                = 2_000 # 2 seconds
   watch_exceptions::Vector{String}                    = String["bin/", "build/", "sessions/", "Project.toml", "Manifest.toml"]
