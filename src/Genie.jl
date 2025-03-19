@@ -3,7 +3,9 @@ Loads dependencies and bootstraps a Genie app. Exposes core Genie functionality.
 """
 module Genie
 
+using PrecompileTools: @setup_workload, @compile_workload, verbose
 import Inflector
+using Infiltrator
 
 include("Configuration.jl")
 using .Configuration
@@ -179,5 +181,23 @@ const bootstrap = genie
 function __init__()
   config.path_build = Genie.Configuration.buildpath()
 end
+
+ENV["PRECOMPILE"] == "true" && begin
+  verbose[] = true
+
+  @setup_workload begin
+    using Genie
+
+    @compile_workload begin
+
+     Genie.Renderer.Html.raw_html(Genie.Renderer.filepath("layouts\\templates\\linkage.jl.html"), layout = Genie.Renderer.filepath("layouts\\app.jl.html"), scripts="<script src='/js/cust/linksus.js'></script>");
+     Genie.Renderer.Html.raw_html(Genie.Renderer.filepath("layouts\\templates\\linkage.jl.html"), layout = Genie.Renderer.filepath("layouts\\app.jl.html"), scripts="<script src='/js/cust/linksus.js'></script>");
+
+    end
+  end
+
+  println("Server compile done")
+end
+    
 
 end
