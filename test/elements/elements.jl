@@ -1,4 +1,4 @@
-export html, head, body, title, style, address, article, aside, footer, header, h1, h2, h3, h4, h5, h6, hgroup, nav, section, dd, div, d, dl, dt, figcaption, figure, li, ol, p, pre, ul, span, a, abbr, b, bdi, bdo, cite, code, data, dfn, em, i, kbd, mark, q, rp, rt, rtc, ruby, s, samp, small, strong, sub, sup, time, u, var, wrb, audio, void, embed, object, canvas, noscript, script, del, ins, caption, col, colgroup, table, tbody, td, tfoot, th, thead, tr, button, datalist, fieldset, label, legend, meter, output, progress, select, option, textarea, details, dialog, menu, menuitem, summary, slot, template, blockquote, center, iframe, form, base, link, meta, hr, br, area, img, track, param, source, input, animate, circle, animateMotion, animateTransform, clipPath, defs, desc, discard, ellipse, feComponentTransfer, feComposite, feDiffuseLighting, feBlend, feColorMatrix, feConvolveMatrix, feDisplacementMap, feDistantLight, feDropShadow, feFlood, feFuncA, feFuncB, feFuncG, feFuncR, feGaussianBlur, feImage, feMerge, feMergeNode, feMorphology, feOffset, fePointLight, feSpecularLighting, feSpotLight, feTile, feTurbulence, foreignObject, g, hatch, hatchpath, image, line, linearGradient, marker, mask, metadata, mpath, path, pattern, polygon, polyline, radialGradient, rect, set, stop, svg, switch, symbol, text, textPath, tspan, use, view
+export html, head, body, title, style, address, article, aside, footer, header, h1, h2, h3, h4, h5, h6, hgroup, nav, section, dd, div, d, dl, dt, figcaption, figure, li, ol, p, pre, ul, span, a, abbr, b, bdi, bdo, cite, code, data, dfn, em, i, kbd, mark, q, rp, rt, rtc, ruby, s, samp, small, strong, sub, sup, time, u, var, wrb, audio, void, embed, object, canvas, noscript, script, del, ins, caption, col, colgroup, table, tbody, td, tfoot, th, thead, tr, button, datalist, fieldset, label, legend, meter, output, progress, select, option, textarea, details, dialog, menu, menuitem, summary, slot, template, blockquote, center, iframe, form, q__drawer, q__layout, q__header, q__toolbar, q__btn, q__toolbar__title, q__list, q__item__label, q__page__container, q__space, q__item, q__item__section, q__icon, q__form, q__card, q__card__section, q__file, q__input, q__select, q__btn__dropdown, q__btn__dropdown__item, q__tooltip, q__badge, q__slider, q__dialog, q__card__actions, q__avatar, q__table, q__td, q__toggle, q__separator, q__banner, base, link, meta, hr, br, area, img, track, param, source, input, animate, circle, animateMotion, animateTransform, clipPath, defs, desc, discard, ellipse, feComponentTransfer, feComposite, feDiffuseLighting, feBlend, feColorMatrix, feConvolveMatrix, feDisplacementMap, feDistantLight, feDropShadow, feFlood, feFuncA, feFuncB, feFuncG, feFuncR, feGaussianBlur, feImage, feMerge, feMergeNode, feMorphology, feOffset, fePointLight, feSpecularLighting, feSpotLight, feTile, feTurbulence, foreignObject, g, hatch, hatchpath, image, line, linearGradient, marker, mask, metadata, mpath, path, pattern, polygon, polyline, radialGradient, rect, set, stop, svg, switch, symbol, text, textPath, tspan, use, view
 
   function html(f::Function, args...; attrs...) :: ParsedHTMLString
     normal_element(f, "html", [args...], Pair{Symbol,Any}[attrs...])
@@ -1324,6 +1324,422 @@ export html, head, body, title, style, address, article, aside, footer, header, 
   end
   function form(children::Vector{Any}, args...; attrs...) :: ParsedHTMLString
     normal_element([string(c) for c in children], "form", [args...], Pair{Symbol,Any}[attrs...])
+  end
+
+  function q__drawer(f::Function, args...; attrs...) :: ParsedHTMLString
+    normal_element(f, "q__drawer", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__drawer(children::Union{String,Vector{String}} = "", args...; attrs...) :: ParsedHTMLString
+    normal_element(children, "q__drawer", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__drawer(children::Any, args...; attrs...) :: ParsedHTMLString
+    normal_element(string(children), "q__drawer", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__drawer(children::Vector{Any}, args...; attrs...) :: ParsedHTMLString
+    normal_element([string(c) for c in children], "q__drawer", [args...], Pair{Symbol,Any}[attrs...])
+  end
+
+  function q__layout(f::Function, args...; attrs...) :: ParsedHTMLString
+    normal_element(f, "q__layout", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__layout(children::Union{String,Vector{String}} = "", args...; attrs...) :: ParsedHTMLString
+    normal_element(children, "q__layout", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__layout(children::Any, args...; attrs...) :: ParsedHTMLString
+    normal_element(string(children), "q__layout", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__layout(children::Vector{Any}, args...; attrs...) :: ParsedHTMLString
+    normal_element([string(c) for c in children], "q__layout", [args...], Pair{Symbol,Any}[attrs...])
+  end
+
+  function q__header(f::Function, args...; attrs...) :: ParsedHTMLString
+    normal_element(f, "q__header", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__header(children::Union{String,Vector{String}} = "", args...; attrs...) :: ParsedHTMLString
+    normal_element(children, "q__header", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__header(children::Any, args...; attrs...) :: ParsedHTMLString
+    normal_element(string(children), "q__header", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__header(children::Vector{Any}, args...; attrs...) :: ParsedHTMLString
+    normal_element([string(c) for c in children], "q__header", [args...], Pair{Symbol,Any}[attrs...])
+  end
+
+  function q__toolbar(f::Function, args...; attrs...) :: ParsedHTMLString
+    normal_element(f, "q__toolbar", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__toolbar(children::Union{String,Vector{String}} = "", args...; attrs...) :: ParsedHTMLString
+    normal_element(children, "q__toolbar", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__toolbar(children::Any, args...; attrs...) :: ParsedHTMLString
+    normal_element(string(children), "q__toolbar", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__toolbar(children::Vector{Any}, args...; attrs...) :: ParsedHTMLString
+    normal_element([string(c) for c in children], "q__toolbar", [args...], Pair{Symbol,Any}[attrs...])
+  end
+
+  function q__btn(f::Function, args...; attrs...) :: ParsedHTMLString
+    normal_element(f, "q__btn", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__btn(children::Union{String,Vector{String}} = "", args...; attrs...) :: ParsedHTMLString
+    normal_element(children, "q__btn", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__btn(children::Any, args...; attrs...) :: ParsedHTMLString
+    normal_element(string(children), "q__btn", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__btn(children::Vector{Any}, args...; attrs...) :: ParsedHTMLString
+    normal_element([string(c) for c in children], "q__btn", [args...], Pair{Symbol,Any}[attrs...])
+  end
+
+  function q__toolbar__title(f::Function, args...; attrs...) :: ParsedHTMLString
+    normal_element(f, "q__toolbar__title", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__toolbar__title(children::Union{String,Vector{String}} = "", args...; attrs...) :: ParsedHTMLString
+    normal_element(children, "q__toolbar__title", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__toolbar__title(children::Any, args...; attrs...) :: ParsedHTMLString
+    normal_element(string(children), "q__toolbar__title", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__toolbar__title(children::Vector{Any}, args...; attrs...) :: ParsedHTMLString
+    normal_element([string(c) for c in children], "q__toolbar__title", [args...], Pair{Symbol,Any}[attrs...])
+  end
+
+  function q__list(f::Function, args...; attrs...) :: ParsedHTMLString
+    normal_element(f, "q__list", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__list(children::Union{String,Vector{String}} = "", args...; attrs...) :: ParsedHTMLString
+    normal_element(children, "q__list", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__list(children::Any, args...; attrs...) :: ParsedHTMLString
+    normal_element(string(children), "q__list", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__list(children::Vector{Any}, args...; attrs...) :: ParsedHTMLString
+    normal_element([string(c) for c in children], "q__list", [args...], Pair{Symbol,Any}[attrs...])
+  end
+
+  function q__item__label(f::Function, args...; attrs...) :: ParsedHTMLString
+    normal_element(f, "q__item__label", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__item__label(children::Union{String,Vector{String}} = "", args...; attrs...) :: ParsedHTMLString
+    normal_element(children, "q__item__label", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__item__label(children::Any, args...; attrs...) :: ParsedHTMLString
+    normal_element(string(children), "q__item__label", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__item__label(children::Vector{Any}, args...; attrs...) :: ParsedHTMLString
+    normal_element([string(c) for c in children], "q__item__label", [args...], Pair{Symbol,Any}[attrs...])
+  end
+
+  function q__page__container(f::Function, args...; attrs...) :: ParsedHTMLString
+    normal_element(f, "q__page__container", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__page__container(children::Union{String,Vector{String}} = "", args...; attrs...) :: ParsedHTMLString
+    normal_element(children, "q__page__container", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__page__container(children::Any, args...; attrs...) :: ParsedHTMLString
+    normal_element(string(children), "q__page__container", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__page__container(children::Vector{Any}, args...; attrs...) :: ParsedHTMLString
+    normal_element([string(c) for c in children], "q__page__container", [args...], Pair{Symbol,Any}[attrs...])
+  end
+
+  function q__space(f::Function, args...; attrs...) :: ParsedHTMLString
+    normal_element(f, "q__space", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__space(children::Union{String,Vector{String}} = "", args...; attrs...) :: ParsedHTMLString
+    normal_element(children, "q__space", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__space(children::Any, args...; attrs...) :: ParsedHTMLString
+    normal_element(string(children), "q__space", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__space(children::Vector{Any}, args...; attrs...) :: ParsedHTMLString
+    normal_element([string(c) for c in children], "q__space", [args...], Pair{Symbol,Any}[attrs...])
+  end
+
+  function q__item(f::Function, args...; attrs...) :: ParsedHTMLString
+    normal_element(f, "q__item", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__item(children::Union{String,Vector{String}} = "", args...; attrs...) :: ParsedHTMLString
+    normal_element(children, "q__item", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__item(children::Any, args...; attrs...) :: ParsedHTMLString
+    normal_element(string(children), "q__item", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__item(children::Vector{Any}, args...; attrs...) :: ParsedHTMLString
+    normal_element([string(c) for c in children], "q__item", [args...], Pair{Symbol,Any}[attrs...])
+  end
+
+  function q__item__section(f::Function, args...; attrs...) :: ParsedHTMLString
+    normal_element(f, "q__item__section", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__item__section(children::Union{String,Vector{String}} = "", args...; attrs...) :: ParsedHTMLString
+    normal_element(children, "q__item__section", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__item__section(children::Any, args...; attrs...) :: ParsedHTMLString
+    normal_element(string(children), "q__item__section", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__item__section(children::Vector{Any}, args...; attrs...) :: ParsedHTMLString
+    normal_element([string(c) for c in children], "q__item__section", [args...], Pair{Symbol,Any}[attrs...])
+  end
+
+  function q__icon(f::Function, args...; attrs...) :: ParsedHTMLString
+    normal_element(f, "q__icon", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__icon(children::Union{String,Vector{String}} = "", args...; attrs...) :: ParsedHTMLString
+    normal_element(children, "q__icon", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__icon(children::Any, args...; attrs...) :: ParsedHTMLString
+    normal_element(string(children), "q__icon", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__icon(children::Vector{Any}, args...; attrs...) :: ParsedHTMLString
+    normal_element([string(c) for c in children], "q__icon", [args...], Pair{Symbol,Any}[attrs...])
+  end
+
+  function q__form(f::Function, args...; attrs...) :: ParsedHTMLString
+    normal_element(f, "q__form", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__form(children::Union{String,Vector{String}} = "", args...; attrs...) :: ParsedHTMLString
+    normal_element(children, "q__form", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__form(children::Any, args...; attrs...) :: ParsedHTMLString
+    normal_element(string(children), "q__form", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__form(children::Vector{Any}, args...; attrs...) :: ParsedHTMLString
+    normal_element([string(c) for c in children], "q__form", [args...], Pair{Symbol,Any}[attrs...])
+  end
+
+  function q__card(f::Function, args...; attrs...) :: ParsedHTMLString
+    normal_element(f, "q__card", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__card(children::Union{String,Vector{String}} = "", args...; attrs...) :: ParsedHTMLString
+    normal_element(children, "q__card", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__card(children::Any, args...; attrs...) :: ParsedHTMLString
+    normal_element(string(children), "q__card", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__card(children::Vector{Any}, args...; attrs...) :: ParsedHTMLString
+    normal_element([string(c) for c in children], "q__card", [args...], Pair{Symbol,Any}[attrs...])
+  end
+
+  function q__card__section(f::Function, args...; attrs...) :: ParsedHTMLString
+    normal_element(f, "q__card__section", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__card__section(children::Union{String,Vector{String}} = "", args...; attrs...) :: ParsedHTMLString
+    normal_element(children, "q__card__section", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__card__section(children::Any, args...; attrs...) :: ParsedHTMLString
+    normal_element(string(children), "q__card__section", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__card__section(children::Vector{Any}, args...; attrs...) :: ParsedHTMLString
+    normal_element([string(c) for c in children], "q__card__section", [args...], Pair{Symbol,Any}[attrs...])
+  end
+
+  function q__file(f::Function, args...; attrs...) :: ParsedHTMLString
+    normal_element(f, "q__file", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__file(children::Union{String,Vector{String}} = "", args...; attrs...) :: ParsedHTMLString
+    normal_element(children, "q__file", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__file(children::Any, args...; attrs...) :: ParsedHTMLString
+    normal_element(string(children), "q__file", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__file(children::Vector{Any}, args...; attrs...) :: ParsedHTMLString
+    normal_element([string(c) for c in children], "q__file", [args...], Pair{Symbol,Any}[attrs...])
+  end
+
+  function q__input(f::Function, args...; attrs...) :: ParsedHTMLString
+    normal_element(f, "q__input", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__input(children::Union{String,Vector{String}} = "", args...; attrs...) :: ParsedHTMLString
+    normal_element(children, "q__input", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__input(children::Any, args...; attrs...) :: ParsedHTMLString
+    normal_element(string(children), "q__input", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__input(children::Vector{Any}, args...; attrs...) :: ParsedHTMLString
+    normal_element([string(c) for c in children], "q__input", [args...], Pair{Symbol,Any}[attrs...])
+  end
+
+  function q__select(f::Function, args...; attrs...) :: ParsedHTMLString
+    normal_element(f, "q__select", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__select(children::Union{String,Vector{String}} = "", args...; attrs...) :: ParsedHTMLString
+    normal_element(children, "q__select", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__select(children::Any, args...; attrs...) :: ParsedHTMLString
+    normal_element(string(children), "q__select", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__select(children::Vector{Any}, args...; attrs...) :: ParsedHTMLString
+    normal_element([string(c) for c in children], "q__select", [args...], Pair{Symbol,Any}[attrs...])
+  end
+
+  function q__btn__dropdown(f::Function, args...; attrs...) :: ParsedHTMLString
+    normal_element(f, "q__btn__dropdown", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__btn__dropdown(children::Union{String,Vector{String}} = "", args...; attrs...) :: ParsedHTMLString
+    normal_element(children, "q__btn__dropdown", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__btn__dropdown(children::Any, args...; attrs...) :: ParsedHTMLString
+    normal_element(string(children), "q__btn__dropdown", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__btn__dropdown(children::Vector{Any}, args...; attrs...) :: ParsedHTMLString
+    normal_element([string(c) for c in children], "q__btn__dropdown", [args...], Pair{Symbol,Any}[attrs...])
+  end
+
+  function q__btn__dropdown__item(f::Function, args...; attrs...) :: ParsedHTMLString
+    normal_element(f, "q__btn__dropdown__item", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__btn__dropdown__item(children::Union{String,Vector{String}} = "", args...; attrs...) :: ParsedHTMLString
+    normal_element(children, "q__btn__dropdown__item", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__btn__dropdown__item(children::Any, args...; attrs...) :: ParsedHTMLString
+    normal_element(string(children), "q__btn__dropdown__item", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__btn__dropdown__item(children::Vector{Any}, args...; attrs...) :: ParsedHTMLString
+    normal_element([string(c) for c in children], "q__btn__dropdown__item", [args...], Pair{Symbol,Any}[attrs...])
+  end
+
+  function q__tooltip(f::Function, args...; attrs...) :: ParsedHTMLString
+    normal_element(f, "q__tooltip", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__tooltip(children::Union{String,Vector{String}} = "", args...; attrs...) :: ParsedHTMLString
+    normal_element(children, "q__tooltip", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__tooltip(children::Any, args...; attrs...) :: ParsedHTMLString
+    normal_element(string(children), "q__tooltip", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__tooltip(children::Vector{Any}, args...; attrs...) :: ParsedHTMLString
+    normal_element([string(c) for c in children], "q__tooltip", [args...], Pair{Symbol,Any}[attrs...])
+  end
+
+  function q__badge(f::Function, args...; attrs...) :: ParsedHTMLString
+    normal_element(f, "q__badge", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__badge(children::Union{String,Vector{String}} = "", args...; attrs...) :: ParsedHTMLString
+    normal_element(children, "q__badge", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__badge(children::Any, args...; attrs...) :: ParsedHTMLString
+    normal_element(string(children), "q__badge", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__badge(children::Vector{Any}, args...; attrs...) :: ParsedHTMLString
+    normal_element([string(c) for c in children], "q__badge", [args...], Pair{Symbol,Any}[attrs...])
+  end
+
+  function q__slider(f::Function, args...; attrs...) :: ParsedHTMLString
+    normal_element(f, "q__slider", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__slider(children::Union{String,Vector{String}} = "", args...; attrs...) :: ParsedHTMLString
+    normal_element(children, "q__slider", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__slider(children::Any, args...; attrs...) :: ParsedHTMLString
+    normal_element(string(children), "q__slider", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__slider(children::Vector{Any}, args...; attrs...) :: ParsedHTMLString
+    normal_element([string(c) for c in children], "q__slider", [args...], Pair{Symbol,Any}[attrs...])
+  end
+
+  function q__dialog(f::Function, args...; attrs...) :: ParsedHTMLString
+    normal_element(f, "q__dialog", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__dialog(children::Union{String,Vector{String}} = "", args...; attrs...) :: ParsedHTMLString
+    normal_element(children, "q__dialog", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__dialog(children::Any, args...; attrs...) :: ParsedHTMLString
+    normal_element(string(children), "q__dialog", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__dialog(children::Vector{Any}, args...; attrs...) :: ParsedHTMLString
+    normal_element([string(c) for c in children], "q__dialog", [args...], Pair{Symbol,Any}[attrs...])
+  end
+
+  function q__card__actions(f::Function, args...; attrs...) :: ParsedHTMLString
+    normal_element(f, "q__card__actions", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__card__actions(children::Union{String,Vector{String}} = "", args...; attrs...) :: ParsedHTMLString
+    normal_element(children, "q__card__actions", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__card__actions(children::Any, args...; attrs...) :: ParsedHTMLString
+    normal_element(string(children), "q__card__actions", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__card__actions(children::Vector{Any}, args...; attrs...) :: ParsedHTMLString
+    normal_element([string(c) for c in children], "q__card__actions", [args...], Pair{Symbol,Any}[attrs...])
+  end
+
+  function q__avatar(f::Function, args...; attrs...) :: ParsedHTMLString
+    normal_element(f, "q__avatar", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__avatar(children::Union{String,Vector{String}} = "", args...; attrs...) :: ParsedHTMLString
+    normal_element(children, "q__avatar", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__avatar(children::Any, args...; attrs...) :: ParsedHTMLString
+    normal_element(string(children), "q__avatar", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__avatar(children::Vector{Any}, args...; attrs...) :: ParsedHTMLString
+    normal_element([string(c) for c in children], "q__avatar", [args...], Pair{Symbol,Any}[attrs...])
+  end
+
+  function q__table(f::Function, args...; attrs...) :: ParsedHTMLString
+    normal_element(f, "q__table", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__table(children::Union{String,Vector{String}} = "", args...; attrs...) :: ParsedHTMLString
+    normal_element(children, "q__table", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__table(children::Any, args...; attrs...) :: ParsedHTMLString
+    normal_element(string(children), "q__table", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__table(children::Vector{Any}, args...; attrs...) :: ParsedHTMLString
+    normal_element([string(c) for c in children], "q__table", [args...], Pair{Symbol,Any}[attrs...])
+  end
+
+  function q__td(f::Function, args...; attrs...) :: ParsedHTMLString
+    normal_element(f, "q__td", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__td(children::Union{String,Vector{String}} = "", args...; attrs...) :: ParsedHTMLString
+    normal_element(children, "q__td", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__td(children::Any, args...; attrs...) :: ParsedHTMLString
+    normal_element(string(children), "q__td", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__td(children::Vector{Any}, args...; attrs...) :: ParsedHTMLString
+    normal_element([string(c) for c in children], "q__td", [args...], Pair{Symbol,Any}[attrs...])
+  end
+
+  function q__toggle(f::Function, args...; attrs...) :: ParsedHTMLString
+    normal_element(f, "q__toggle", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__toggle(children::Union{String,Vector{String}} = "", args...; attrs...) :: ParsedHTMLString
+    normal_element(children, "q__toggle", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__toggle(children::Any, args...; attrs...) :: ParsedHTMLString
+    normal_element(string(children), "q__toggle", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__toggle(children::Vector{Any}, args...; attrs...) :: ParsedHTMLString
+    normal_element([string(c) for c in children], "q__toggle", [args...], Pair{Symbol,Any}[attrs...])
+  end
+
+  function q__separator(f::Function, args...; attrs...) :: ParsedHTMLString
+    normal_element(f, "q__separator", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__separator(children::Union{String,Vector{String}} = "", args...; attrs...) :: ParsedHTMLString
+    normal_element(children, "q__separator", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__separator(children::Any, args...; attrs...) :: ParsedHTMLString
+    normal_element(string(children), "q__separator", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__separator(children::Vector{Any}, args...; attrs...) :: ParsedHTMLString
+    normal_element([string(c) for c in children], "q__separator", [args...], Pair{Symbol,Any}[attrs...])
+  end
+
+  function q__banner(f::Function, args...; attrs...) :: ParsedHTMLString
+    normal_element(f, "q__banner", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__banner(children::Union{String,Vector{String}} = "", args...; attrs...) :: ParsedHTMLString
+    normal_element(children, "q__banner", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__banner(children::Any, args...; attrs...) :: ParsedHTMLString
+    normal_element(string(children), "q__banner", [args...], Pair{Symbol,Any}[attrs...])
+  end
+  function q__banner(children::Vector{Any}, args...; attrs...) :: ParsedHTMLString
+    normal_element([string(c) for c in children], "q__banner", [args...], Pair{Symbol,Any}[attrs...])
   end
 
   function base(args...; attrs...) :: ParsedHTMLString
