@@ -349,6 +349,7 @@ function load(; context::Union{Module,Nothing} = nothing) :: Nothing
 
   for i in Genie.config.autoload
     f = getproperty(@__MODULE__, Symbol("load_$i"))
+    
     Genie.Repl.replprint(string(i), t; prefix = "Loading ", clearline = 3, sleep_time = 0.0)
     Base.@invokelatest f(; context)
     Genie.Repl.replprint("$i ✅", t; prefix = "Loading ", clearline = 3, color = :green, sleep_time = 0.1)

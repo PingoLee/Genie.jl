@@ -2,6 +2,7 @@
 Loads dependencies and bootstraps a Genie app. Exposes core Genie functionality.
 """
 module Genie
+import Infiltrator: @infiltrate
 
 import Inflector
 
@@ -165,7 +166,7 @@ end
     genie() :: Union{Nothing,Sockets.TCPServer}
 """
 function genie(; context = @__MODULE__) :: Union{Nothing,Sockets.TCPServer}
-  EARLYBINDING = Loader.loadenv(context = context)
+  EARLYBINDING = Loader.loadenv(context = context) 
   Secrets.load(context = context)
   Loader.load(context = context)
   Genie.config.watch && @async Watch.watch(pwd())

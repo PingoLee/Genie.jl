@@ -1108,7 +1108,7 @@ end
 Generated functions that represent Julia functions definitions corresponding to HTML elements.
 """
 function register_elements(; context = @__MODULE__) :: Nothing 
-  ENV["PRECOMPILE"] == "true" && return include_elements(context=context)
+  ( haskey(ENV, "PRECOMPILE") && ENV["PRECOMPILE"] == "true") && return include_elements(context=context)
   for elem in NORMAL_ELEMENTS
     register_normal_element(elem)
   end
