@@ -397,8 +397,6 @@ function get_template(path::String; partial::Bool = true, context::Module = @__M
     return Base.include(context, joinpath(Genie.config.path_build, Genie.Renderer.BUILD_NAME, mod_name))
   end
 
-  println("Returning: ", getfield(context, f_name))
-
   getfield(context, f_name)
 end
 
@@ -473,7 +471,6 @@ Renders the template file as an HTML view.
 function render(viewfile::Genie.Renderer.FilePath; layout::Union{Nothing,Genie.Renderer.FilePath,String} = nothing, context::Module = @__MODULE__, vars...) :: Function
   Genie.Renderer.registervars(; context = context, vars...)
 
-  println("render")
   if layout !== nothing
     task_local_storage(:__yield, get_template(string(viewfile); partial = true, context = context, vars...))
     parselayout(layout, context; vars...)
@@ -522,7 +519,6 @@ end
 function Genie.Renderer.render(::Type{MIME"text/html"}, viewfile::Genie.Renderer.FilePath;
                                 layout::Union{Nothing,Genie.Renderer.FilePath,String} = nothing,
                                 context::Module = @__MODULE__, vars...) :: Genie.Renderer.WebRenderable
-  println("html4_render")
   try
     render(viewfile; layout = layout, context = context, vars...) |> Genie.Renderer.WebRenderable
   catch ex
@@ -620,10 +616,8 @@ function html(data::String;
   end
 
   if (occursin(raw"$", data) || occursin(EMBED_JULIA_OPEN_TAG, data) || layout !== nothing || forceparse) && ! noparse
-    println("Parsing HTML")
     html(HTMLString(data); context = context, status = status, headers = headers, layout = layout, vars...)
   else
-    println("Rendering HTML")
     html(ParsedHTMLString(data); context, status, headers, layout, vars...)
   end
 end
@@ -649,7 +643,6 @@ function html(data::HTMLString;
               forceparse::Bool = false,
               noparse::Bool = false,
               vars...) :: Genie.Renderer.HTTP.Response
-  println("html1")
   Genie.Renderer.WebRenderable(Genie.Renderer.render(MIME"text/html", data; context = context, layout = layout, vars...), status, headers) |> Genie.Renderer.respond
 end
 
@@ -661,7 +654,6 @@ function html(data::ParsedHTMLString;
               forceparse::Bool = false,
               noparse::Bool = false,
               vars...) :: Genie.Renderer.HTTP.Response
-  println("html2")
   Genie.Renderer.WebRenderable(Genie.Renderer.render(MIME"text/html", data; context = context, layout = layout, vars...), status, headers) |> Genie.Renderer.respond
 end
 
@@ -685,7 +677,6 @@ function html(md::Markdown.MD;
               layout::Union{String,Nothing,Genie.Renderer.FilePath} = nothing,
               forceparse::Bool = false,
               vars...) :: Genie.Renderer.HTTP.Response
-  println("html3")  
   for kv in vars
     data = replace(data, ":" * string(kv[1]) => "\$" * string(kv[1]))
   end
@@ -714,7 +705,6 @@ function html(viewfile::Genie.Renderer.FilePath;
                 headers::Genie.Renderer.HTTPHeaders = Genie.Renderer.HTTPHeaders(),
                 vars...) :: Genie.Renderer.HTTP.Response
 
-  println("html4")
   Genie.Renderer.WebRenderable(Genie.Renderer.render(MIME"text/html", viewfile; layout, context, vars...), status, headers) |> Genie.Renderer.respond
 end
 
