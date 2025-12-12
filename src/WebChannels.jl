@@ -3,8 +3,8 @@ Handles WebSockets communication logic.
 """
 module WebChannels
 
-import HTTP, Distributed, Logging, JSON3, Sockets, Dates, Base64
-import Genie, Genie.Renderer
+import HTTP, Distributed, Logging, Sockets, Dates, Base64
+import Genie, Genie.Renderer, Genie.Util.killtask
 
 const ClientId = UInt # web socket hash
 const ChannelName = String
@@ -31,10 +31,6 @@ mutable struct ChannelMessage
   client::ClientId
   message::String
   payload::MessagePayload
-end
-
-function JSON3.StructTypes.StructType(::Type{T}) where {T<:ChannelMessage}
-  JSON3.StructTypes.Struct()
 end
 
 const CLIENTS = ChannelClientsCollection()
@@ -263,7 +259,7 @@ function broadcast(channels::Union{ChannelName,Vector{ChannelName}},
 
       try
         payload !== nothing ?
-          message(client, ChannelMessage(channel, client, msg, payload) |> Renderer.Json.JSONParser.json) :
+          message(client, ChannelMessage(channel, client, msg, payload) |> Genie.JSONParser.json) :
           message(client, msg)
       catch ex
         if isa(ex, Base.IOError)
@@ -359,7 +355,7 @@ end
 function delete_queue!(d::Dict, client::UInt)
   queue, handler = pop!(MESSAGE_QUEUE, client, (nothing, nothing))
   if queue !== nothing
-    @async Base.throwto(handler, InterruptException()) |> errormonitor
+    killtask(handler) |> errormonitor
   end
 end
 

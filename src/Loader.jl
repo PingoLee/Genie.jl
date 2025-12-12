@@ -13,7 +13,7 @@ using DotEnv
 
 const post_load_hooks = Function[]
 
-export @using
+export @using, @import, @delay
 
 ### PRIVATE ###
 
@@ -29,9 +29,9 @@ function importenv()
 end
 
 
-function loadenv(; context) :: Union{Sockets.TCPServer,Nothing}
+function loadenv(; context, show_banner::Bool = true) :: Union{Sockets.TCPServer,Nothing}
   haskey(ENV, "GENIE_ENV") || (ENV["GENIE_ENV"] = "dev")
-  bootstrap(context)
+  bootstrap(context; show_banner)
 
   haskey(ENV, "GENIE_HOST") && (! isempty(ENV["GENIE_HOST"])) && (Genie.config.server_host = ENV["GENIE_HOST"])
   haskey(ENV, "GENIE_HOST") || (ENV["GENIE_HOST"] = Genie.config.server_host)
@@ -423,6 +423,22 @@ function _findpackage(package::String)
   path, package
 end
 
+function find_module_file(modulepath::String)::Union{String,Nothing}
+  f = endswith(modulepath, ".jl") ? modulepath : "$modulepath.jl"
+  f = if isfile(f)
+    f
+  else
+    # otherwise try to locate the file from a directory with the same name or an included 'src' directory
+    package_name = basename(f)[1:end-3]
+    pp = splitpath(f)
+    f = joinpath(insert!(pp, length(pp), package_name)...)
+    if !isfile(f)
+      f = joinpath(insert!(pp, length(pp), "src")...)
+      isfile(f) ? f : nothing
+    end
+  end
+end
+
 """
     @using(package_path)
 
@@ -437,6 +453,9 @@ When called from a different module it includes the module file and uses `using 
     e.g. '@using models/MyApp' to load models/MyApp.jl'
 - as a path to a package directory containing a 'src' directory and module file therein
     e.g. '@using models/MyApp' to load 'models/MyApp/src/MyApp.jl'
+
+The relative path is relative to the file's directory. In case that the path is not found the search
+is repeated relative to the project directory. See also [`@using`](@ref).
 
 ### Examples
 
@@ -461,109 +480,172 @@ need to be escaped by double quotes.
 Caveat: Due to precompilation it is not possible to supply variables to the macro.
 Calls need to supply explicit paths.
 """
-macro _using(package)
+macro _using(package, mode = QuoteNode(:using), src_file = nothing, context = nothing)
+  src_file = src_file === nothing ? String(__source__.file) : String(src_file)
+  context = context === nothing ? __module__ : context
+  mode in (QuoteNode(:using), QuoteNode(:import)) || error(ArgumentError("Invalid mode '$mode', expected ':using' or ':import'"))
+
   # determine whether @using is called from Main or a different module
   is_submodule = __module__ != Base.Main
   package = Genie.Util.expr_to_path(package)
   # ensure os-specific path separator
   Sys.iswindows() && (package = replace(package, '/' => '\\'))
 
-  not_found = false
   fp = is_submodule ? splitdir(package) : _findpackage(package)
   if fp === nothing
-      not_found = true
       fp = splitdir(package)
   end
   path, package_name = fp
+  # _findpackage might return an extra loadpath and append it with ';'
+  loadpaths = String.(split(path, ';'))
+  path = loadpaths[1]
   package_symbol = Symbol(package_name)
+  f_orig = joinpath(path, "$package_name.jl")
 
-  if is_submodule || not_found
-    # if called from submodule add module via `include()` and, `using .MyModule`
-    out = quote
-      try
-        @debug("using $($package_name) (from '$($package)') per 'include()'")
-        let f = $package_name * ".jl", pp = splitpath(joinpath($path, f))
-          let M = try
-            include(joinpath(pp))
-          catch e1
-            if e1 isa SystemError && e1.errnum == 2 # file not found
-              # retrieve filepath from error message
-              d, f = splitdir(Meta.parse(split(e1.prefix)[end]))
-              # if error was from a different file than the one we are looking for, rethrow
-              f == $package_name * ".jl" || rethrow(e1)
-              # otherwise try to load the file from the directory or an included 'src' directory
-              pp = splitpath(joinpath(d, f))
-              f = joinpath(insert!(pp, length(pp), $package_name))
-              if !isfile(f)
-                f = joinpath(insert!(pp, length(pp), "src"))
-                isfile(f) || throw(e1)
-              end
-              include(f)
-            else
-              rethrow(e1)
-            end
-          end # let M = try ...
-            # file was included without error, let's check whether it was really a module, in that case use it
-            if M isa Module
-              if nameof(M) == Symbol($package_name)
-                using .$(package_symbol)
-              else
-                @warn("Module's name doesn't match the filename, expected '$($package_name)', got '$(nameof(M))'")
-                eval(Expr(:using, Expr(:., :., nameof(M))))
-              end
-            else
-              @warn("'$($package_name)' could not be loaded from '$(joinpath(pp))' or is not a module.")
-            end
-          end
-        end
-      catch e
-        throw(e)
+  # first search relative to the directory of the calling file,
+  f = find_module_file(joinpath(dirname(src_file), f_orig))
+  if f === nothing
+    tryfile = joinpath(Genie.Util.project_path(dirname(src_file), error_if_not_found = false), f_orig)
+    f = find_module_file(tryfile)
+  end
+  if f === nothing
+    @warn("Package $package_name not found in LOAD_PATH or at '$f_orig'")
+    return
+  end
+
+  # if called from submodule add module via `include()` and, `using .MyModule`
+  f = normpath(f)
+  out_include = quote
+    @debug("using $($package_name) (from '$($package)') per 'include()'")         
+    M = $context.include($f)
+    # file was included without error, let's check whether it was really a module, in that case use it
+    if M isa Module
+      if nameof(M) == Symbol($package_name)
+        $mode == :using && (using .$(package_symbol))
+      else
+        @warn("Module's name doesn't match the filename, expected '$($package_name)', got '$(nameof(M))'")
+        eval(Expr($mode, Expr(:., :., nameof(M))))
       end
+    else
+      @warn("'$($package_name)' could not be loaded from '$(joinpath($f))' or is not a module.")
     end
-    not_found && pushfirst!(out.args,
-      :(@warn("Package $($package_name) not found in LOAD_PATH, trying to add it via 'include()' and 'using'"))
-    )
-    out |> esc
+  end
+
+  if is_submodule
+    out_include |> esc
   else
     # if called from Main add module via setting 'LOAD_PATH' and 'using'
-    quote
-      let pp = split($path, ';')
-        for p in pp
-          push!(LOAD_PATH, p)
-        end
-        @debug "using $($package_name) (from '$($path)')"
-        success = try
-          using $package_symbol
-          true
-        catch _
-          @warn("Package $($package_name) not found in LOAD_PATH, trying to add it via 'include()' and 'using'")
-          @debug("using $($package_name) (from '$($package)') per 'include()'")
-          false
-        finally
-            for _ in pp
-              pop!(LOAD_PATH)
-            end
-        end
-        success || try
-          pp = split($path, ';')
-          M = include(joinpath(pp[end], "$($package_name).jl"))
-          if M isa Module
-            if nameof(M) == Symbol($package_name)
-              using .$(package_symbol)
-            else
-              @warn("Module's name doesn't match the filename, expected '$($package_name)', got '$(nameof(M))'")
-              eval(Expr(:using, Expr(:., :., nameof(M))))
-            end
-          end
-        catch e
-          rethrow(e)
-        end
+    out = quote
+      for p in $loadpaths
+        push!(LOAD_PATH, p)
       end
-      nothing
-    end |> esc
+      @debug "using $($package_name) (from '$($path)')"
+      success = try
+        $mode == :using ? (using $package_symbol) : (import $package_symbol)
+        true
+      catch _
+        @warn("Package $($package_name) not found in LOAD_PATH ($LOAD_PATH), trying to add it via 'include()' and 'using'")
+        false
+      finally
+          for _ in $loadpaths
+            pop!(LOAD_PATH)
+          end
+      end
+      success && return
+    end
+
+    # first try loading via LOAD_PATH and `using`, if that fails fallback to `include()` and `using .MyModule`
+    push!(out.args, out_include.args...)
+    out |> esc
+  end
+end
+
+"""
+    @import(package_path)
+
+Macro to simplify loading of modules taking advantage of precompilation.
+When called from Main it temporarilty adds the path to LOAD_PATH and loads the module via `import`
+When called from a different module it includes the module file and uses `import .MyModule`
+
+`package_path` can be used in several ways
+- as a path to a directory containing a module file of the same name
+    e.g '@import models/MyApp' to load 'models/MyApp/MyApp.jl'
+- as a path to a module (without extension '.jl')
+    e.g. '@import models/MyApp' to load models/MyApp.jl'
+- as a path to a package directory containing a 'src' directory and module file therein
+    e.g. '@import models/MyApp' to load 'models/MyApp/src/MyApp.jl'
+
+The relative path is relative to the file's directory. In case that the path is not found the search
+is repeated relative to the project directory. See also [`@import`](@ref).
+
+### Examples
+
+```julia
+@import models/MyApp
+
+@import StippleDemos/Vue3/Calendars
+```
+or explicitly
+```julia
+@import StippleDemos/Vue3/Calendars/Calendars
+```
+Note, directories containing special characters like colon (`':'`) or space (`' '`)
+need to be escaped by double quotes.
+```julia
+@import "C:/Program Files/Julia/models/Calendars"
+
+# or
+@import "C:/Program Files"/Julia/models/Calendars
+```
+
+Caveat: Due to precompilation it is not possible to supply variables to the macro.
+Calls need to supply explicit paths.
+"""
+macro _import(package)
+  src_file = String(__source__.file)
+
+  quote
+    @_using $package :import $src_file $__module__
   end
 end
 
 const var"@using" = var"@_using"
+const var"@import" = var"@_import"
+
+"""
+    @delay module symbol
+    @delay expression
+
+Delays execution of a function call to avoid world age issues in Julia 1.12+.
+
+When called with two arguments (`module` and `symbol`), wraps `getfield(module, symbol)()` in `Base.invokelatest`.
+When called with a single expression, wraps the expression in a lambda and passes it to `Base.invokelatest`.
+
+# Examples
+```julia
+@delay SearchLight.Migrations :allup
+@delay SearchLight :connect
+@delay SearchLight.Configuration.load(path)
+@delay Core.eval(@__MODULE__, Meta.parse("using SomePackage"))
+```
+"""
+macro delay(args...)
+  if length(args) == 1
+    # Single expression: wrap in lambda
+    expr = esc(args[1])
+    quote
+      Base.invokelatest(() -> $expr)
+    end
+  elseif length(args) == 2
+    # Two arguments: module and symbol
+    module_expr_esc = esc(args[1])
+    symbol_esc = esc(args[2])
+    quote
+      Base.invokelatest(() -> getfield($module_expr_esc, $symbol_esc)())
+    end
+  else
+    error("@delay expects 1 or 2 arguments, got $(length(args))")
+  end
+end
 
 end

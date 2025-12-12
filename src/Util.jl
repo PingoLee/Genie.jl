@@ -3,7 +3,7 @@ module Util
 using Pkg
 import Genie
 
-export @project_path
+export project_path, @project_path, @wait
 
 """
     file_name_without_extension(file_name, extension = ".jl") :: String
@@ -115,25 +115,40 @@ function expr_to_path(expr::Union{Expr, Symbol, String})::String
   return join(reverse(path), '/')
 end
 
-function project_path(d)
-  while !isfile(joinpath(d, "Project.toml"))
-    d_new = dirname(d)
-    if d_new == d
-        error("Project.toml not found in parent directories")
+"""
+    function project_path(path = dirname(Base.active_project()), error_if_not_found = true) :: String
+
+Returns the path to the project directory of `path`. If no path is specified project_path returns the
+project path of the active project.
+If `error_if_not_found` is `false`, the current working directory is returned if no project directory could be found.
+
+The macro version `@project_path` returns the project path of the current file.
+"""
+function project_path(path = dirname(Base.active_project()); error_if_not_found = true)::String
+  orig_path = path
+  isabspath(path) || (path = normpath(joinpath(pwd(), path)))
+  while !isfile(joinpath(path, "Project.toml"))
+    newpath = dirname(path)
+    if newpath == path
+        if error_if_not_found
+            error("Could not find Project.toml in any parent directory of '$path'")
+        else
+            return pwd()
+        end
     end
-    d = d_new
+    path = newpath
   end
-  return d
+  return path
 end
 
 """
     @project_path
 
-Returns the path to the project directory.
+Returns the path to the project directory of the current file.
 
     @project_path path
 
-Returns the absolute path of a file or directory within the project directory.
+Returns the absolute path of a file or directory within the project directory of the current file.
 
 ### Examples
 
@@ -158,7 +173,6 @@ be changed to absolute paths.
 This macro is intended to simplify the transition to absolute paths.
 """
 macro project_path()
-  @info __source__
   project_path(dirname(String(__source__.file)))
 end
 
@@ -170,4 +184,95 @@ macro project_path(path)
     return joinpath(d, path)
 end
 
+"""
+    killtask(task::Task)
+
+Attempts to kill a task by scheduling an `InterruptException()` on it.
+"""
+function killtask(task::Task; retry::Integer = false, sleep_interval::Real = 0.01, wait_for_started_duration::Real = 0.1)
+    # never-throwing and safe against race conditions
+    sleep(wait_for_started_duration) # give the task some time to start
+    if !istaskstarted(task)
+        @warn "Task not started!\n consider increasing wait_for_started_duration"
+        return task
+    end
+    while !(istaskdone(task) || istaskfailed(task)) && retry ≥ 0
+        try
+            schedule(task, InterruptException(), error = true)
+        catch
+        end
+        retry -= 1
+        retry ≥ 0 && sleep(sleep_interval)
+    end
+    return task
 end
+
+"""
+    @wait
+    @wait(exit_msg)
+    @wait(start_msg, exit_msg)
+
+Utility macro to pause script execution until interrupted by the user (Ctrl/Cmd+C).
+In interactive sessions returns immediately.
+If a cmdline argument `serve` is present, the wait is forced also in interactive sessions.
+If a cmdline argument `noserve` is present, the wait is skipped even in non-interactive sessions.
+
+### Examples
+
+from the commandline
+```
+julia --project -e 'using MyApp; @wait'
+```
+or
+```
+julia --project app.jl
+```
+from within julia
+```
+push!(ARGS, "serve")
+include("app.jl")
+```
+"""
+macro wait()
+    project = basename(dirname(Base.active_project()))
+    :(wait_for_sigint(exit_msg = "$($project) stopped."))
+end
+
+macro wait(exit_msg)
+    :(wait_for_sigint(exit_msg = $exit_msg))
+end
+
+macro wait(start_msg, exit_msg)
+    :(wait_for_sigint(start_msg = $start_msg, exit_msg = $exit_msg))
+end
+
+"""
+    wait_for_sigint(; start_msg::String="Press Ctrl/Cmd+C to interrupt.", exit_msg::String="Genie stopped.")
+
+Utility function to pause script execution until interrupted by the user (Ctrl/Cmd+C).
+In interactive sessions returns immediately.
+If a cmdline argument `serve` is present, the wait is forced also in interactive sessions.
+If a cmdline argument `noserve` is present, the wait is skipped even in non-interactive sessions.
+"""
+
+function wait_for_sigint(; start_msg::String="Press Ctrl/Cmd+C to interrupt.", exit_msg::String="Genie stopped.")
+  (Base.isinteractive() && "serve" ∉ ARGS || "noserve" ∈ ARGS) && return
+  
+  Base.exit_on_sigint(false)   # don’t kill process immediately on Ctrl-C
+  try
+      isempty(start_msg) || println("\n$start_msg")
+      Base.isinteractive() ? wait(Condition()) : while true
+          sleep(0.5)  # interruptible version for non-interactive sessions
+      end
+  catch e
+      if e isa InterruptException
+          isempty(exit_msg) || println("\n$exit_msg\n")
+      else
+          rethrow()
+      end
+  finally
+      Base.exit_on_sigint(! Base.isinteractive())  # restore default behavior
+  end
+end
+
+end # module Util

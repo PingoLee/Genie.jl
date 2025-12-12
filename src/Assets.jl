@@ -3,9 +3,8 @@ Helper functions for working with frontend assets (including JS, CSS, etc files)
 """
 module Assets
 
-import Genie, Genie.Configuration, Genie.Router, Genie.WebChannels, Genie.WebThreads
-import Genie.Renderer.Json
-import Genie.Util.package_version
+import Genie: Genie, Configuration, Router, WebChannels, WebThreads
+import Genie: JSONParser, Util.package_version
 
 export include_asset, css_asset, js_asset, js_settings, css, js
 export embedded, channels_script, channels_support, webthreads_script, webthreads_support
@@ -218,7 +217,7 @@ end
 Sets up a `window.Genie.Settings` JavaScript object which exposes relevant Genie app settings from `Genie.config`
 """
 function js_settings(channel::String = Genie.config.webchannels_default_route) :: String
-  settings = Json.JSONParser.json(Dict(
+  settings = JSONParser.json(Dict(
     :server_host                      => Genie.config.server_host,
     :server_port                      => Genie.config.server_port,
 
@@ -313,7 +312,9 @@ function add_fileroute(assets_config::Genie.Assets.AssetsConfig, filename::Abstr
   basedir = pwd(),
   type::Union{Nothing, String} = nothing,
   content_type::Union{Nothing, Symbol} = nothing,
-  ext::Union{Nothing, String} = nothing, named::Union{Symbol, Nothing} = nothing, kwargs...)
+  ext::Union{Nothing, String} = nothing,
+  named::Union{Symbol, Nothing} = nothing,
+  path::String = "", kwargs...)
 
   file, ex = splitext(filename)
   ext = isnothing(ext) ? ex : ext
@@ -330,9 +331,9 @@ function add_fileroute(assets_config::Genie.Assets.AssetsConfig, filename::Abstr
     Symbol("*.*")
   end : content_type
 
-  Genie.Router.route(Genie.Assets.asset_path(assets_config, type; file, ext, kwargs...); named) do
+  Genie.Router.route(Genie.Assets.asset_path(assets_config, type; file, ext, path, kwargs...); named) do
     Genie.Renderer.WebRenderable(
-      Genie.Assets.embedded(Genie.Assets.asset_file(cwd=basedir; type, file)),
+      Genie.Assets.embedded(Genie.Assets.asset_file(cwd=basedir; type, file, path)),
     content_type) |> Genie.Renderer.respond
   end
 end

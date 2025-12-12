@@ -41,14 +41,14 @@
     # r = Genie.Requests.HTTP.request("GET", "http://$(ENV["HOST"]):$(ENV["PORT"])/")
     # @test r.status == Genie.Router.OK
 
-    # eobj = Genie.Renderer.Json.JSONParser.parse(String(r.body))
+    # eobj = Genie.JSONParser.parse(String(r.body))
 
     # @test eobj["PORT"] == ENV["PORT"]
     # @test eobj["WSPORT"] == ENV["WSPORT"]
     # @test eobj["HOST"] == ENV["HOST"]
 
     # try
-    #   @async Base.throwto(task, InterruptException())
+    #   Genie.Util.killtask(task)
     # catch
     # end
 

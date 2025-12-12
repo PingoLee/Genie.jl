@@ -8,6 +8,7 @@ import Millboard, Distributed, Logging
 import Genie
 import Distributed
 import HTTP.Servers: Listener, forceclose
+import HTTP.URI
 
 
 """
@@ -148,11 +149,22 @@ function up(port::Int,
   end
   if !async && !isnothing(listener)
     try
-      wait(listener)
-    catch
+      if Base.isinteractive()
+        wait(listener)
+      else
+        # interruptible version for non-interactive sessions
+        Base.exit_on_sigint(false)
+        while true
+          sleep(0.5)
+        end
+      end
+    catch e
+      e isa InterruptException || @warn "Server error: $e"
       nothing
     finally
       close(listener)
+      sleep(0.1)
+      Base.isinteractive() || Base.exit_on_sigint(true)  # restore default behavior
       # close the corresponding websocket server
       new_server.websockets !== nothing && isopen(new_server.websockets) && close(new_server.websockets)
     end
@@ -179,17 +191,26 @@ function up(; port = Genie.config.server_port, ws_port = Genie.config.websockets
 end
 
 
-print_server_status(status::String) = @info "\n$status \n"
+print_server_status(status::String) = (println(); @info "$status \n")
 
 
 @static if Sys.isapple()
-  openbrowser(url::String) = run(`open $url`)
+  openbrowser(url::URI) = run(`open $url`)
 elseif Sys.islinux()
-  openbrowser(url::String) = run(`xdg-open $url`)
+  openbrowser(url::URI) = run(`xdg-open $url`)
 elseif Sys.iswindows()
-  openbrowser(url::String) = run(`cmd /C start $url`)
+  openbrowser(url::URI) = run(`cmd /C start $url`)
 end
 
+function openbrowser(target::AbstractString = ""; port::Int = Genie.config.server_port)
+  uri = URI(target)
+  isempty(uri.port) || (port = uri.port)
+  host = isempty(uri.host) ? "localhost" : uri.host
+  scheme = isempty(uri.scheme) ? "http" : uri.scheme
+  uri = URI("$scheme://$host:$port$(uri.path)$(isempty(uri.query) ? "" : "?" * uri.query)")
+  
+  openbrowser(uri)
+end
 
 """
     serve(path::String = pwd(), params...; kwparams...)
