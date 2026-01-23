@@ -5,6 +5,12 @@ module Genie
 
 import Inflector
 
+# Load Requires for Julia 1.6-1.8 backwards compatibility
+# (Julia 1.9+ has Package Extensions built-in)
+@static if !isdefined(Base, :get_extension)
+  using Requires
+end
+
 include("Configuration.jl")
 using .Configuration
 
@@ -16,7 +22,24 @@ import Sockets
 import Logging
 
 using Reexport
-using Revise
+
+# ================================================= #
+# ===  INJECTION HOOKS ============================ #
+# ================================================= #
+
+# Hook for Revise.revise (Immediate code update)
+const _revise = Ref{Function}() do
+  nothing
+end
+
+# Hook for Revise.entr (File Watcher) 
+# Signature matches Revise.entr: f (callback function), watched_files, and all kwarg
+const _entr = Ref{Function}() do f, watched_files; all=false
+  @warn "Watch mode is disabled because Revise.jl is not loaded. Install Revise to enable file watching." maxlog=1
+  nothing
+end
+
+# ================================================= #
 
 include("Util.jl")
 include("HTTPUtils.jl")
@@ -106,7 +129,7 @@ function loadapp( path::String = ".";
   path = normpath(path) |> abspath
 
   if isfile(joinpath(path, Genie.BOOTSTRAP_FILE_NAME))
-    Revise.includet(context, joinpath(path, Genie.BOOTSTRAP_FILE_NAME))
+    Genie.Loader.includet(context, joinpath(path, Genie.BOOTSTRAP_FILE_NAME))
     Genie.config.watch && @async Genie.Watch.watch(path)
     autostart && (Core.eval(context, :(up())))
   elseif isfile(joinpath(path, Genie.ROUTES_FILE_NAME)) || isfile(joinpath(path, Genie.APP_FILE_NAME))
@@ -177,7 +200,36 @@ end
 const bootstrap = genie
 
 function __init__()
+  # 1. BACKWARDS COMPATIBILITY (Julia 1.6-1.8)
+  # If native extension system doesn't exist, use Requires.jl for dynamic loading
+  @static if !isdefined(Base, :get_extension)
+    @require Revise="295af30f-e4ad-537b-8983-00126c2a3abe" begin
+      # Set the loader to use Revise when detected
+      Genie.Loader._includet[] = Revise.includet
+      @debug "Genie: Revise.jl detected via Requires. Hot-reloading enabled."
+    end
+  end
+
+  # 2. GENERAL CONFIGURATION
   config.path_build = Genie.Configuration.buildpath()
+
+  # 3. SECURITY WARNING (Valid for all versions)
+  # If in DEV mode and loader is still Base.include (either no extension loaded or Requires didn't find Revise)
+  if Genie.Configuration.isdev() && Genie.Loader._includet[] == Base.include
+    @warn """
+    Hot-reloading is DISABLED!
+    
+    Revise.jl is no longer loaded automatically to ensure production security and enable static compilation.
+    
+    To enable code autorefresh in DEV, run:
+      julia> using Revise
+      julia> using Genie
+    
+    Or add `using Revise` to your startup.jl for automatic loading.
+    
+    For more details, see: https://learn.genieframework.com/guides/Interactive_environment
+    """
+  end
 end
 
 end

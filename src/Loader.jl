@@ -5,7 +5,6 @@ module Loader
 
 import Logging
 import REPL, REPL.Terminals
-import Revise
 import Genie
 import Sockets
 
@@ -16,6 +15,11 @@ const post_load_hooks = Function[]
 export @using, @import, @delay
 
 ### PRIVATE ###
+
+const _includet = Ref{Function}(Base.include)
+function includet(mod::Module, path::String)
+  _includet[](mod, path)
+end
 
 
 function importenv()
@@ -192,7 +196,7 @@ end
 Loads the routes file.
 """
 function load_routes(routes_file::String = Genie.ROUTES_FILE_NAME; context::Union{Module,Nothing} = nothing) :: Nothing
-  isfile(routes_file) && Revise.includet(default_context(context), routes_file)
+  isfile(routes_file) && includet(default_context(context), routes_file)
 
   nothing
 end
@@ -204,7 +208,7 @@ end
 Loads the app file (`app.jl` can be used for single file apps, instead of `routes.jl`).
 """
 function load_app(app_file::String = Genie.APP_FILE_NAME; context::Union{Module,Nothing} = nothing) :: Nothing
-  isfile(app_file) && Revise.includet(default_context(context), abspath(app_file))
+  isfile(app_file) && includet(default_context(context), abspath(app_file))
 
   nothing
 end
@@ -220,7 +224,7 @@ Arguments mirror the exported `autoload` helpers used by Genie when loading `lib
   * `skipdirs`/`namematch`/`skipmatch` – fine-grained filters to limit which directories or files are traversed;
   * `autoload_file`/`autoload_ignore_file` – names of the files that drive ordered loading or global exclusions.
 
-Files are loaded via `Revise.includet` so changes are picked up automatically during development.
+Files are loaded via `includet` so changes are picked up automatically during development.
 """
 function autoload(root_dir::String = Genie.config.path_lib;
                   context::Union{Module,Nothing} = nothing,
@@ -241,7 +245,7 @@ function autoload(root_dir::String = Genie.config.path_lib;
     @debug "Checking $fi"
     if validinclude(fi)
       @debug "Auto loading file: $fi"
-      Revise.includet(default_context(context), fi)
+      includet(default_context(context), fi)
     elseif isdir(fi)
       i ∈ skipdirs && continue
       autoload(fi; context=context,
