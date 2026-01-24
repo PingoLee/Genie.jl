@@ -8,10 +8,10 @@ function __init__()
     Genie.Loader._includet[] = Revise.includet
     
     # Inject entr for watching file changes
-    Genie.Watch._entr[] = Revise.entr
+    Genie._entr[] = Revise.entr
     
     # Inject revise for manual code refresh
-    Genie.Genie._revise[] = Revise.revise
+    Genie._revise[] = Revise.revise
     
     @debug "Genie: Revise.jl detected. Hot-reloading & file watching enabled."
 end

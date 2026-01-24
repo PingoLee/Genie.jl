@@ -201,12 +201,21 @@ const bootstrap = genie
 
 function __init__()
   # 1. BACKWARDS COMPATIBILITY (Julia 1.6-1.8)
-  # If native extension system doesn't exist, use Requires.jl for dynamic loading
   @static if !isdefined(Base, :get_extension)
     @require Revise="295af30f-e4ad-537b-8983-00126c2a3abe" begin
-      # Set the loader to use Revise when detected
-      Genie.Loader._includet[] = Revise.includet
-      @debug "Genie: Revise.jl detected via Requires. Hot-reloading enabled."
+      using Revise
+      # Connect Loader
+      Genie.Loader._includet[] = Revise.includet      
+      # Connect Watcher
+      if isdefined(Revise, :entr)
+        Genie._entr[] = Revise.entr
+      else
+        @warn "Genie: File watching disabled. Your Revise.jl version is too old (pre-v2.6). Update Revise to enable auto-reloading."
+      end
+      # Connect Manual Revision
+      Genie._revise[] = Revise.revise
+      
+      @debug "Genie: Revise.jl detected via Requires. Hot-reloading & Watcher enabled."
     end
   end
 

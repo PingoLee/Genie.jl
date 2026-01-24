@@ -62,7 +62,7 @@ function watch( files::Vector{<: AbstractString},
 
   watched_files = collect_watched_files(WATCHED_FOLDERS[], extensions)
   try
-    @async _entr[](watched_files; all = true) do
+    @async Genie._entr[](watched_files; all = true) do
       now() - last_watched > Millisecond(watch_frequency) || return
       last_watched = now()
 
